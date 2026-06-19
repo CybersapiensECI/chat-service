@@ -1,5 +1,6 @@
 package com.alphaeci.chat.domain.model;
 
+import com.alphaeci.chat.domain.model.enums.ChatRoomStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +18,8 @@ import java.util.UUID;
 public class ChatRoom {
     private UUID id;
     private UUID parcheId;
+    private UUID requesterId;
+    private ChatRoomStatus status;
     @Builder.Default
     private List<UUID> memberIds = new ArrayList<>();
     private LocalDateTime createdAt;
