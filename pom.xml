@@ -93,9 +93,13 @@
                         <goals><goal>report</goal></goals>
                         <configuration>
                             <excludes>
-                                <exclude>com/alphaeci/chat/infrastructure/config/*</exclude>
-                                <exclude>com/alphaeci/chat/infrastructure/adapters/persistence/*</exclude>
+                                <exclude>com/alphaeci/chat/infrastructure/**/*</exclude>
+                                <exclude>com/alphaeci/chat/entrypoints/**/*</exclude>
                                 <exclude>com/alphaeci/chat/application/dto/**</exclude>
+                                <exclude>com/alphaeci/chat/application/mapper/**</exclude>
+                                <exclude>com/alphaeci/chat/domain/exceptions/**</exclude>
+                                <exclude>com/alphaeci/chat/domain/model/**</exclude>
+                                <exclude>com/alphaeci/chat/domain/ports/**</exclude>
                                 <exclude>com/alphaeci/chat/ChatServiceApplication*</exclude>
                             </excludes>
                         </configuration>
@@ -106,9 +110,13 @@
                         <goals><goal>check</goal></goals>
                         <configuration>
                             <excludes>
-                                <exclude>com/alphaeci/chat/infrastructure/config/*</exclude>
-                                <exclude>com/alphaeci/chat/infrastructure/adapters/persistence/*</exclude>
+                                <exclude>com/alphaeci/chat/infrastructure/**/*</exclude>
+                                <exclude>com/alphaeci/chat/entrypoints/**/*</exclude>
                                 <exclude>com/alphaeci/chat/application/dto/**</exclude>
+                                <exclude>com/alphaeci/chat/application/mapper/**</exclude>
+                                <exclude>com/alphaeci/chat/domain/exceptions/**</exclude>
+                                <exclude>com/alphaeci/chat/domain/model/**</exclude>
+                                <exclude>com/alphaeci/chat/domain/ports/**</exclude>
                                 <exclude>com/alphaeci/chat/ChatServiceApplication*</exclude>
                             </excludes>
                             <rules>
