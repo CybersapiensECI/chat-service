@@ -53,6 +53,8 @@ jobs:
           az containerapp update \
             --name chat-service-prod \
             --resource-group rg-alphaeci \
+            --min-replicas 0 \
+            --max-replicas 1 \
             --set-env-vars \
               "SPRING_DATA_MONGODB_URI=${{ secrets.MONGODB_URI_CHAT }}" \
               "SPRING_RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}" \
