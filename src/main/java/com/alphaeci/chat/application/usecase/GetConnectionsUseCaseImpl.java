@@ -19,7 +19,11 @@ public class GetConnectionsUseCaseImpl implements GetConnectionsUseCase {
 
     @Override
     public List<ConnectionResponse> execute(UUID userId) {
+        // Solo salas 1:1 (parcheId nulo): las grupales de un parche se listan
+        // aparte con GET /api/parches (memberCount y demás no tienen sentido
+        // en un ConnectionResponse, que asume un único "otherUserId").
         return chatRoomRepository.findAllByMemberId(userId).stream()
+                .filter(room -> room.getParcheId() == null)
                 .map(room -> chatMapper.toConnectionResponse(room, userId))
                 .toList();
     }

@@ -64,4 +64,33 @@ class GetConnectionsUseCaseImplTest {
 
         assertTrue(result.isEmpty());
     }
+
+    @Test
+    void execute_excludesParcheGroupRooms() {
+        UUID userId = UUID.randomUUID();
+        ChatRoom directRoom = ChatRoom.builder()
+                .id(UUID.randomUUID())
+                .requesterId(userId)
+                .status(ChatRoomStatus.ACTIVE)
+                .memberIds(new ArrayList<>(List.of(userId, UUID.randomUUID())))
+                .createdAt(LocalDateTime.now())
+                .build();
+        ChatRoom parcheRoom = ChatRoom.builder()
+                .id(UUID.randomUUID())
+                .parcheId(UUID.randomUUID())
+                .status(ChatRoomStatus.ACTIVE)
+                .memberIds(new ArrayList<>(List.of(userId, UUID.randomUUID(), UUID.randomUUID())))
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(chatRoomRepository.findAllByMemberId(userId)).thenReturn(List.of(directRoom, parcheRoom));
+        when(chatMapper.toConnectionResponse(directRoom, userId))
+                .thenReturn(ConnectionResponse.builder().chatRoomId(directRoom.getId()).build());
+
+        List<ConnectionResponse> result = useCase.execute(userId);
+
+        assertEquals(1, result.size());
+        assertEquals(directRoom.getId(), result.get(0).getChatRoomId());
+        verify(chatMapper, never()).toConnectionResponse(eq(parcheRoom), any());
+    }
 }
