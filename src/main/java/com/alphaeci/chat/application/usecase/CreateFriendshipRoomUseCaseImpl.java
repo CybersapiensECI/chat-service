@@ -21,7 +21,11 @@ import java.util.UUID;
  *
  * Id determinístico (hash de los dos userId ordenados) para que reintentos
  * o reentregas del mismo evento no dupliquen la sala: save() sobre el mismo
- * id es un upsert.
+ * id es un upsert. También se usa como get-or-create bajo demanda (ver
+ * ConnectionController.ensureFriendRoom): backfill natural para amistades
+ * que ya existían antes de que este consumer existiera, sin necesitar una
+ * migración aparte — la primera vez que alguien toca "Mensaje" con un
+ * amigo viejo, la sala aparece sola.
  */
 @Slf4j
 @Service
@@ -30,11 +34,12 @@ public class CreateFriendshipRoomUseCaseImpl {
 
     private final ChatRoomRepository chatRoomRepository;
 
-    public void execute(UUID userId1, UUID userId2) {
+    public ChatRoom execute(UUID userId1, UUID userId2) {
         UUID roomId = deterministicRoomId(userId1, userId2);
-        if (chatRoomRepository.findById(roomId).isPresent()) {
+        var existing = chatRoomRepository.findById(roomId);
+        if (existing.isPresent()) {
             log.info("Friendship room {} already exists for {}/{}, skipping", roomId, userId1, userId2);
-            return;
+            return existing.get();
         }
 
         List<UUID> members = new ArrayList<>(List.of(userId1, userId2));
@@ -46,8 +51,9 @@ public class CreateFriendshipRoomUseCaseImpl {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        chatRoomRepository.save(chatRoom);
+        ChatRoom saved = chatRoomRepository.save(chatRoom);
         log.info("Created friendship chat room {} for {}/{}", roomId, userId1, userId2);
+        return saved;
     }
 
     private UUID deterministicRoomId(UUID a, UUID b) {

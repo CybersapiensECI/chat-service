@@ -1,6 +1,8 @@
 package com.alphaeci.chat.entrypoints.rest.controller;
 
 import com.alphaeci.chat.application.dto.response.ConnectionResponse;
+import com.alphaeci.chat.application.mapper.ChatMapper;
+import com.alphaeci.chat.application.usecase.CreateFriendshipRoomUseCaseImpl;
 import com.alphaeci.chat.domain.ports.in.GetConnectionsUseCase;
 import com.alphaeci.chat.domain.ports.in.RespondConnectionRequestUseCase;
 import com.alphaeci.chat.domain.ports.in.SendConnectionRequestUseCase;
@@ -25,6 +27,8 @@ public class ConnectionController {
     private final SendConnectionRequestUseCase sendConnectionRequestUseCase;
     private final RespondConnectionRequestUseCase respondConnectionRequestUseCase;
     private final GetConnectionsUseCase getConnectionsUseCase;
+    private final CreateFriendshipRoomUseCaseImpl createFriendshipRoomUseCase;
+    private final ChatMapper chatMapper;
 
     @Operation(
             summary = "Send a connection request",
@@ -68,6 +72,28 @@ public class ConnectionController {
             @RequestParam boolean accepted) {
         respondConnectionRequestUseCase.execute(userId, requesterId, accepted);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(
+            summary = "Get or create the direct chat room with a friend",
+            description = "Idempotent: returns the existing ACTIVE room between the two users, creating it if "
+                    + "it doesn't exist yet. Meant for friendships that predate the friendship.created event "
+                    + "consumer (or any case where that event was missed) — the frontend calls this on demand "
+                    + "when the user taps \"Mensaje\" on a friend, so old friendships self-heal instead of "
+                    + "needing a data migration.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Room found or created")
+    })
+    @PostMapping("/friend/{friendId}")
+    public ResponseEntity<ConnectionResponse> ensureFriendRoom(
+            @Parameter(description = "Authenticated user, propagated by the API Gateway", required = true,
+                    example = "3f2a7c1e-9b4d-4c8a-b0f6-2d1e5a7c9b03")
+            @RequestHeader("X-User-Id") UUID userId,
+            @Parameter(description = "The friend to open/create a direct chat with", required = true,
+                    example = "9c8b7a6d-5e4f-43c2-b1a0-9f8e7d6c5b4a")
+            @PathVariable UUID friendId) {
+        var room = createFriendshipRoomUseCase.execute(userId, friendId);
+        return ResponseEntity.ok(chatMapper.toConnectionResponse(room, userId));
     }
 
     @Operation(
