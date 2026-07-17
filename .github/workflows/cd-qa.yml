@@ -42,17 +42,15 @@ jobs:
         run: |
           az containerapp up \
             --name chat-service-qa \
-            --resource-group rg-alphaeci \
+            --resource-group gr-alphaeci-prod \
+            --environment gr-alphaeci-prod \
             --image ${{ env.IMAGE_NAME }}:qa-${{ github.sha }} \
-            --registry-server ghcr.io \
-            --registry-username ${{ github.actor }} \
-            --registry-password ${{ secrets.GITHUB_TOKEN }} \
             --ingress external \
             --target-port 8082
 
           az containerapp update \
             --name chat-service-qa \
-            --resource-group rg-alphaeci \
+            --resource-group gr-alphaeci-prod \
             --min-replicas 0 \
             --max-replicas 1 \
             --set-env-vars \
