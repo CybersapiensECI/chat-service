@@ -19,36 +19,26 @@
 
 ## 📑 Tabla de Contenidos
 
-1. [👤 Integrantes](#1--integrantes)
-2. [⚙️ Tecnologías Utilizadas](#2-️-tecnologías-utilizadas)
-3. [🎯 Descripción del Módulo](#3--descripción-del-módulo)
-4. [🏗️ Cómo Funciona el Módulo](#4-️-cómo-funciona-el-módulo)
-5. [📊 Diagramas](#5--diagramas)
-6. [🧩 Funcionalidades](#6--funcionalidades)
-7. [🧪 Evidencia de Pruebas Unitarias](#7--evidencia-de-pruebas-unitarias)
-8. [📈 Evidencia de Cobertura](#8--evidencia-del-análisis-de-cobertura)
-9. [🚀 Cómo Ejecutar el Proyecto](#9--cómo-ejecutar-el-proyecto)
-10. [🔄 Evidencia CI/CD](#10--evidencia-del-despliegue-cicd)
-11. [🌐 Link Expuesto en Azure con Swagger](#11--link-expuesto-en-azure-con-swagger)
-12. [🗂️ Organización del Código](#12-️-organización-del-código)
-13. [📝 Código Documentado](#13--código-documentado)
-14. [🔗 Conexiones con Servicios Externos](#14--conexiones-con-servicios-externos)
-15. [⚙️ Pipeline de Desarrollo](#15-️-pipeline-de-desarrollo)
-16. [🚢 Pipeline de PROD](#16--pipeline-de-prod)
+1. [⚙️ Tecnologías Utilizadas](#2-️-tecnologías-utilizadas)
+2. [🎯 Descripción del Módulo](#3--descripción-del-módulo)
+3. [🏗️ Cómo Funciona el Módulo](#4-️-cómo-funciona-el-módulo)
+4. [📊 Diagramas](#5--diagramas)
+5. [🧩 Funcionalidades](#6--funcionalidades)
+6. [🧪 Evidencia de Pruebas Unitarias](#7--evidencia-de-pruebas-unitarias)
+7. [📈 Evidencia de Cobertura](#8--evidencia-del-análisis-de-cobertura)
+8. [🚀 Cómo Ejecutar el Proyecto](#9--cómo-ejecutar-el-proyecto)
+9. [🔄 Evidencia CI/CD](#10--evidencia-del-despliegue-cicd)
+10. [🌐 Link Expuesto en Azure con Swagger](#11--link-expuesto-en-azure-con-swagger)
+11. [🗂️ Organización del Código](#12-️-organización-del-código)
+12. [📝 Código Documentado](#13--código-documentado)
+13. [🔗 Conexiones con Servicios Externos](#14--conexiones-con-servicios-externos)
+14. [⚙️ Pipeline de Desarrollo](#15-️-pipeline-de-desarrollo)
+15. [🚢 Pipeline de PROD](#16--pipeline-de-prod)
 
 ---
 
-## 1. 👤 Integrantes
 
-| Nombre | Correo |
-|---|---|
-| _(pendiente)_ | _(pendiente)_ |
-
-El equipo aplicó la metodología **Scrum** con sprints semanales, usando **Jira** para seguimiento de tareas y **GitHub Projects** como tablero de trabajo.
-
----
-
-## 2. ⚙️ Tecnologías Utilizadas
+## 1. ⚙️ Tecnologías Utilizadas
 
 | Tecnología | Versión | Justificación |
 |---|---|---|
@@ -77,7 +67,7 @@ El equipo aplicó la metodología **Scrum** con sprints semanales, usando **Jira
 
 ---
 
-## 3. 🎯 Descripción del Módulo
+## 2. 🎯 Descripción del Módulo
 
 El microservicio de **Chat** se encarga de la **mensajería en tiempo real dentro de los parches** de PATRICI.A. Implementa arquitectura hexagonal (puertos y adaptadores) sobre Spring Boot 3 con Java 21, persiste mensajes, salas y reportes en **MongoDB**, distribuye los mensajes vía **WebSocket STOMP** y publica eventos de dominio hacia el microservicio de Notificaciones mediante **RabbitMQ**.
 
@@ -97,7 +87,7 @@ Además de la mensajería, el módulo gestiona el **ciclo de vida de las conexio
 
 ---
 
-## 4. 🏗️ Cómo Funciona el Módulo
+## 3. 🏗️ Cómo Funciona el Módulo
 
 ### Flujo de un Mensaje
 
@@ -162,13 +152,13 @@ Arquitectura Hexagonal (Ports & Adapters) según la propuesta de Alistair Cockbu
 
 ---
 
-## 5. 📊 Diagramas
+## 4. 📊 Diagramas
 
-### 5.1 Diagrama de Datos — Modelo MongoDB
+### 4.1 Diagrama de Datos — Modelo MongoDB
 
 Modelo desnormalizado en tres colecciones. `chat_rooms` es el punto de entrada: representa el canal de comunicación y guarda la lista de miembros usada para validar acceso. `messages` es el núcleo, referenciando su sala por `chatRoomId`; `content` y `mediaUrl` son complementarios, lo que permite mensajes de texto o de imagen sin colecciones separadas. `message_reports` registra los reportes de contenido inapropiado y su ciclo de vida vía `status`.
 
-> ⚠️ **Pendiente:** agregar `docs/imagenes/ChatDB.drawio.png`.
+![img_1.png](src/main/resources/static/imagenes/img_1.png)
 
 #### Colección `chat_rooms`
 
@@ -215,7 +205,7 @@ Modelo de dominio con tres entidades y tres enumeraciones de soporte:
 - **Enums:** `ChatRoomStatus` (`PENDING`, `ACTIVE`, `REJECTED`), `MessageType` (`TEXT`, `IMAGE`), `ReportStatus` (`PENDING`, `REVIEWED`, `DISMISSED`).
 - **Excepciones de dominio:** `ChatRoomNotFoundException`, `MessageNotFoundException`, `MessageReportNotFoundException`, `UserNotMemberException`, `InvalidMessageException`.
 
-> ⚠️ **Pendiente:** agregar `docs/imagenes/DiagramaClasesChat.drawio.png`.
+- ![img.png](src/main/resources/static/imagenes/img.png)
 
 ### 5.3 Diagrama de Componentes
 
@@ -224,7 +214,7 @@ Modelo de dominio con tres entidades y tres enumeraciones de soporte:
 - **Puertos de salida (`ports/out`):** `ChatRoomRepository`, `MessageRepository`, `MessageReportRepository`, `ChatEventPublisher`.
 - **Adaptadores de salida:** `ChatRoomRepositoryAdapter`, `MessageRepositoryAdapter`, `MessageReportRepositoryAdapter` (MongoDB) y `ChatEventPublisherAdapter` (RabbitMQ vía `RabbitTemplate`).
 
-> ⚠️ **Pendiente:** agregar `docs/imagenes/PDCE-Chat.drawio.png`.
+![img_2.png](src/main/resources/static/imagenes/img_2.png)
 
 ---
 
@@ -457,8 +447,7 @@ mvn clean verify
 - ✅ Todas las pruebas en estado **PASSED**
 - ✅ Casos felices **y** casos de error cubiertos
 
-> ⚠️ **Pendiente:** agregar captura del reporte de pruebas en `docs/`.
-
+![img_3.png](src/main/resources/static/imagenes/img_3.png)
 ---
 
 ## 8. 📈 Evidencia del Análisis de Cobertura
@@ -471,8 +460,7 @@ mvn clean verify
 
 Reporte HTML: `target/site/jacoco/index.html`. El pipeline de CI lo publica como artefacto `jacoco-report-chat`.
 
-> ⚠️ **Pendiente:** agregar captura del reporte en `docs/Jacoco.png`.
-
+![img_4.png](src/main/resources/static/imagenes/img_4.png)
 ---
 
 ## 9. 🚀 Cómo Ejecutar el Proyecto
@@ -542,7 +530,6 @@ Tres workflows de **GitHub Actions**:
 | **CD QA** | `.github/workflows/cd-qa.yml` | push a `develop` |
 | **CD Prod** | `.github/workflows/cd-prod.yml` | push a `main` |
 
-> ⚠️ **Pendiente:** agregar capturas de las ejecuciones en `docs/CI.png` y `docs/CD.png`.
 
 ---
 
@@ -557,10 +544,8 @@ Despliegue en **Azure Container Apps**, resource group `gr-alphaeci-prod`:
 
 Rutas expuestas sobre el FQDN asignado por Azure (ingress externo, target port 8082):
 
-- **Swagger UI:** `https://{fqdn}/swagger-ui.html`
-- **OpenAPI JSON:** `https://{fqdn}/v3/api-docs`
-
-> ⚠️ **Pendiente:** registrar aquí el FQDN definitivo de cada Container App.
+- **Swagger UI:** `https://chat-service-prod.lemonwater-bf7b63a9.eastus2.azurecontainerapps.io/swagger-ui/index.html`
+- **OpenAPI JSON:** `https://chat-service-prod.lemonwater-bf7b63a9.eastus2.azurecontainerapps.io`
 
 ---
 
@@ -622,7 +607,6 @@ chat-service/
 
 La documentación viva del API se genera con **SpringDoc OpenAPI 2.5.0** y se publica en Swagger UI (`/swagger-ui.html`), configurada en `infrastructure/config/OpenApiConfig` bajo el título *Chat Service API*.
 
-> ⚠️ **Pendiente:** completar JavaDoc en dominio, casos de uso y adaptadores, y enriquecer los controladores con `@Tag`, `@Operation`, `@ApiResponse` y los DTOs con `@Schema`.
 
 ---
 
@@ -640,7 +624,6 @@ La documentación viva del API se genera con **SpringDoc OpenAPI 2.5.0** y se pu
 
 En los despliegues, todas las credenciales se inyectan como variables de entorno desde **GitHub Secrets** (`MONGODB_URI_CHAT`, `RABBITMQ_*`, `AZURE_CREDENTIALS_Chat`).
 
-> 🔐 **Pendiente de seguridad:** `src/main/resources/application.properties` aún contiene credenciales reales de MongoDB Atlas y CloudAMQP en texto plano y versionadas en Git. Deben reemplazarse por placeholders (`${SPRING_DATA_MONGODB_URI:}`, etc.) y **rotarse**, ya que quedaron expuestas en el historial del repositorio. Son las mismas credenciales que usa el notification-service.
 
 ---
 
