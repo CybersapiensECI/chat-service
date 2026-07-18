@@ -13,6 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ChatMessageEvent {
     private UUID chatId;
-    private String senderName;
+    /** UUID del remitente (nunca fue un nombre — ver publishMessageSent). */
+    private String senderId;
     private String content;
 }

@@ -21,10 +21,10 @@ public class ChatEventPublisherAdapter implements ChatEventPublisher {
     private String chatRoutingKey;
 
     @Override
-    public void publishMessageSent(Message message, String senderName) {
+    public void publishMessageSent(Message message, String senderId) {
         ChatMessageEvent event = ChatMessageEvent.builder()
                 .chatId(message.getChatRoomId())
-                .senderName(senderName)
+                .senderId(senderId)
                 .content(message.getContent())
                 .build();
 
