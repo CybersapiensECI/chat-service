@@ -3,6 +3,7 @@ package com.alphaeci.chat.entrypoints.rest.controller;
 import com.alphaeci.chat.application.dto.response.ConnectionResponse;
 import com.alphaeci.chat.application.mapper.ChatMapper;
 import com.alphaeci.chat.application.usecase.CreateFriendshipRoomUseCaseImpl;
+import com.alphaeci.chat.application.usecase.EnsureParcheRoomUseCaseImpl;
 import com.alphaeci.chat.domain.ports.in.GetConnectionsUseCase;
 import com.alphaeci.chat.domain.ports.in.RespondConnectionRequestUseCase;
 import com.alphaeci.chat.domain.ports.in.SendConnectionRequestUseCase;
@@ -28,6 +29,7 @@ public class ConnectionController {
     private final RespondConnectionRequestUseCase respondConnectionRequestUseCase;
     private final GetConnectionsUseCase getConnectionsUseCase;
     private final CreateFriendshipRoomUseCaseImpl createFriendshipRoomUseCase;
+    private final EnsureParcheRoomUseCaseImpl ensureParcheRoomUseCase;
     private final ChatMapper chatMapper;
 
     @Operation(
@@ -94,6 +96,28 @@ public class ConnectionController {
             @PathVariable UUID friendId) {
         var room = createFriendshipRoomUseCase.execute(userId, friendId);
         return ResponseEntity.ok(chatMapper.toConnectionResponse(room, userId));
+    }
+
+    @Operation(
+            summary = "Ensure the group chat room of a parche exists (with the caller as member)",
+            description = "Idempotent get-or-create: the room id equals the parcheId. Meant for parches that "
+                    + "predate the parche.created event consumer (or whose events were missed) — the frontend "
+                    + "calls this before opening a parche chat, so existing parches self-heal instead of "
+                    + "needing a data migration. If the room already exists it only adds the caller as a "
+                    + "member when missing.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Room ensured")
+    })
+    @PostMapping("/parche/{parcheId}")
+    public ResponseEntity<Void> ensureParcheRoom(
+            @Parameter(description = "Authenticated user, propagated by the API Gateway", required = true,
+                    example = "3f2a7c1e-9b4d-4c8a-b0f6-2d1e5a7c9b03")
+            @RequestHeader("X-User-Id") UUID userId,
+            @Parameter(description = "The parche whose group chat room must exist", required = true,
+                    example = "7b6a5c4d-3e2f-41a0-9b8c-7d6e5f4a3b2c")
+            @PathVariable UUID parcheId) {
+        ensureParcheRoomUseCase.execute(parcheId, userId);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(
