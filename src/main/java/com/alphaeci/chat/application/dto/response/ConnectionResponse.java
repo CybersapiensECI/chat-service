@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "A chat room the user belongs to, seen from that user's side")
@@ -28,4 +28,10 @@ public class ConnectionResponse {
 
     @Schema(description = "When the connection was requested", example = "2026-04-14T09:00:00")
     private LocalDateTime createdAt;
+
+    @Schema(description = "Content of the most recent message in the room, if any", example = "Nos vemos a las 5")
+    private String lastMessageContent;
+
+    @Schema(description = "When the most recent message was sent, if any", example = "2026-04-15T17:32:00")
+    private LocalDateTime lastMessageAt;
 }
