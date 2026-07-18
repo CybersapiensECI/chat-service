@@ -60,4 +60,7 @@ jobs:
               "SPRING_RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USERNAME }}" \
               "SPRING_RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}" \
               "SPRING_RABBITMQ_VIRTUAL_HOST=${{ secrets.RABBITMQ_VIRTUAL_HOST }}" \
-              "SPRING_RABBITMQ_SSL_ENABLED=true"
+              "SPRING_RABBITMQ_SSL_ENABLED=true" \
+              "PROFILE_SERVICE_URL=https://alphaeci-profile-service-prod.happygrass-8c498810.eastus2.azurecontainerapps.io" \
+              "PARCHES_SERVICE_URL=https://parches-service-prod.lemonwater-bf7b63a9.eastus2.azurecontainerapps.io" \
+              "INTERNAL_API_KEY=${{ secrets.INTERNAL_API_KEY }}"

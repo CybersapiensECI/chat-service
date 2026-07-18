@@ -1,8 +1,10 @@
 package com.alphaeci.chat.application.usecase;
 
+import com.alphaeci.chat.domain.exceptions.UserNotMemberException;
 import com.alphaeci.chat.domain.model.ChatRoom;
 import com.alphaeci.chat.domain.model.enums.ChatRoomStatus;
 import com.alphaeci.chat.domain.ports.out.ChatRoomRepository;
+import com.alphaeci.chat.domain.ports.out.ParcheServicePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,8 +32,16 @@ import java.util.UUID;
 public class EnsureParcheRoomUseCaseImpl {
 
     private final ChatRoomRepository chatRoomRepository;
+    private final ParcheServicePort parcheServicePort;
 
     public ChatRoom execute(UUID parcheId, UUID userId) {
+        // X-User-Id no prueba membresía del parche por sí solo — sin esto,
+        // cualquier usuario autenticado podía entrar al chat de un parche
+        // sin ser miembro de ese parche.
+        if (!parcheServicePort.isMember(parcheId, userId)) {
+            throw new UserNotMemberException(
+                    "User " + userId + " is not a member of parche " + parcheId);
+        }
         var existing = chatRoomRepository.findById(parcheId).orElse(null);
         if (existing == null) {
             List<UUID> members = new ArrayList<>(List.of(userId));

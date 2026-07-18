@@ -1,8 +1,11 @@
 package com.alphaeci.chat.application.usecase;
 
+import com.alphaeci.chat.domain.exceptions.UserNotMemberException;
 import com.alphaeci.chat.domain.model.ChatRoom;
 import com.alphaeci.chat.domain.model.enums.ChatRoomStatus;
 import com.alphaeci.chat.domain.ports.out.ChatRoomRepository;
+import com.alphaeci.chat.domain.ports.out.ParcheServicePort;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,6 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
@@ -23,8 +27,24 @@ import static org.mockito.Mockito.*;
 class EnsureParcheRoomUseCaseImplTest {
 
     @Mock private ChatRoomRepository chatRoomRepository;
+    @Mock private ParcheServicePort parcheServicePort;
 
     @InjectMocks private EnsureParcheRoomUseCaseImpl useCase;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(parcheServicePort.isMember(any(), any())).thenReturn(true);
+    }
+
+    @Test
+    void execute_callerNotAMember_throwsAndNeverTouchesRepository() {
+        UUID parcheId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        when(parcheServicePort.isMember(parcheId, userId)).thenReturn(false);
+
+        assertThrows(UserNotMemberException.class, () -> useCase.execute(parcheId, userId));
+        verifyNoInteractions(chatRoomRepository);
+    }
 
     @Test
     void execute_roomMissing_createsActiveRoomWithCallerAsMember() {
