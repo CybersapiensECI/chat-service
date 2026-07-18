@@ -31,7 +31,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }},${{ env.IMAGE_NAME }}:latest
 
       - name: Log in to Azure
         uses: azure/login@v2
@@ -44,14 +44,14 @@ jobs:
             --name chat-service-prod \
             --resource-group gr-alphaeci-prod \
             --environment gr-alphaeci-prod \
-            --image ${{ env.IMAGE_NAME }}:latest \
+            --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --ingress external \
             --target-port 8082
 
           az containerapp update \
             --name chat-service-prod \
             --resource-group gr-alphaeci-prod \
-            --min-replicas 0 \
+            --min-replicas 1 \
             --max-replicas 1 \
             --set-env-vars \
               "SPRING_DATA_MONGODB_URI=${{ secrets.MONGODB_URI_CHAT }}" \
