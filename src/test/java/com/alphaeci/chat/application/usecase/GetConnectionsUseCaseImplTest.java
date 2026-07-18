@@ -93,4 +93,42 @@ class GetConnectionsUseCaseImplTest {
         assertEquals(directRoom.getId(), result.get(0).getChatRoomId());
         verify(chatMapper, never()).toConnectionResponse(eq(parcheRoom), any());
     }
+
+    @Test
+    void execute_excludesPendingAndRejectedRooms() {
+        UUID userId = UUID.randomUUID();
+        ChatRoom activeRoom = ChatRoom.builder()
+                .id(UUID.randomUUID())
+                .requesterId(userId)
+                .status(ChatRoomStatus.ACTIVE)
+                .memberIds(new ArrayList<>(List.of(userId, UUID.randomUUID())))
+                .createdAt(LocalDateTime.now())
+                .build();
+        ChatRoom pendingRoom = ChatRoom.builder()
+                .id(UUID.randomUUID())
+                .requesterId(userId)
+                .status(ChatRoomStatus.PENDING)
+                .memberIds(new ArrayList<>(List.of(userId, UUID.randomUUID())))
+                .createdAt(LocalDateTime.now())
+                .build();
+        ChatRoom rejectedRoom = ChatRoom.builder()
+                .id(UUID.randomUUID())
+                .requesterId(userId)
+                .status(ChatRoomStatus.REJECTED)
+                .memberIds(new ArrayList<>(List.of(userId, UUID.randomUUID())))
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(chatRoomRepository.findAllByMemberId(userId))
+                .thenReturn(List.of(activeRoom, pendingRoom, rejectedRoom));
+        when(chatMapper.toConnectionResponse(activeRoom, userId))
+                .thenReturn(ConnectionResponse.builder().chatRoomId(activeRoom.getId()).build());
+
+        List<ConnectionResponse> result = useCase.execute(userId);
+
+        assertEquals(1, result.size());
+        assertEquals(activeRoom.getId(), result.get(0).getChatRoomId());
+        verify(chatMapper, never()).toConnectionResponse(eq(pendingRoom), any());
+        verify(chatMapper, never()).toConnectionResponse(eq(rejectedRoom), any());
+    }
 }
